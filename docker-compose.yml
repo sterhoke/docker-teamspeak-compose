@@ -1,7 +1,5 @@
 version: '3.4'
 
-#ARG inifile
-
 services:
   db:
     image: mariadb
@@ -10,14 +8,13 @@ services:
     volumes:
       - db:/var/lib/mysql
     environment:
-      - MYSQL_ROOT_PASSWORD=6NWYAUJzOH0tEFViwuuJ
-      - MYSQL_PASSWORD=HXENwnahDAFvJ7oicle4
+      - MYSQL_ROOT_PASSWORD=changeme
+      - MYSQL_PASSWORD=changeme
       - MYSQL_DATABASE=ts3
       - MYSQL_USER=ts3
 
   ts3:
-    #image: mbentley/teamspeak
-    image: bb681735d358
+    image: ster/teamspeak
     command: ["inifile=ts3server.ini"]
     container_name: "teamspeak_server"
     restart: always
