@@ -1,0 +1,65 @@
+version: '3.4'
+
+#ARG inifile
+
+services:
+  db:
+    image: mariadb
+    container_name: "teamspeak_db"
+    restart: always
+    volumes:
+      - db:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=6NWYAUJzOH0tEFViwuuJ
+      - MYSQL_PASSWORD=HXENwnahDAFvJ7oicle4
+      - MYSQL_DATABASE=ts3
+      - MYSQL_USER=ts3
+
+  ts3:
+    #image: mbentley/teamspeak
+    image: bb681735d358
+    command: ["inifile=ts3server.ini"]
+    container_name: "teamspeak_server"
+    restart: always
+    ports:
+      - "10011:10011"
+      - "30033:30033"
+      - "9987:9987/udp"
+    environment:
+      - PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      - TS_DIRECTORY=/opt/teamspeak
+      - TINI_VERSION=v0.13.1
+    volumes:
+      - type: bind
+        source: /data/teamspeak
+        target: /data
+    depends_on:
+      - db
+
+
+  watchtower:
+    image: v2tec/watchtower
+    restart: always
+    container_name: "teamspeak-watchtower"
+    command: --cleanup teamspeak_server teamspeak_db
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: teamspeak_phpmyadmin
+    environment:
+     - PMA_ARBITRARY=1
+    restart: always
+    ports:
+     - 8082:80
+    volumes:
+     - /sessions
+    depends_on:
+     - db
+    external_links:
+     - teamspeak_db_1:db
+
+
+volumes:
+  db:
